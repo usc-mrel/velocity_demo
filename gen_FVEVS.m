@@ -59,7 +59,7 @@ inv_amp = ones(1,18);
 phi = [0 0 pi pi pi 0 0 pi pi pi 0 0  0 pi pi 0];
 
 if (sinc_weight)
-    rf_weight = dzrf(num_sp,6,'inv','max',0.1,0.001);
+    rf_weight = dzrf(num_sp,6,'inv','max',0.05,0.001);
     %rf_weight = dzrf(9,4,'inv','pm',0.01,0.01); 
     hpscale = num_sp/sum(rf_weight)*rf_weight;
     disp(hpscale)
