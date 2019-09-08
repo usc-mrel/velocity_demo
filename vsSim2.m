@@ -30,8 +30,12 @@ sinc_weight = 1;
 % variation 6: missing the dephasing unipolars
 % variation 7: 4 bipolars  
 
-[b1, gz, gz_flip, gz_off,inv_start,inv_dist,kv_locs] = gen_FVEVS(grad_ramp,Grad_val,B1_val_hp,B1_val_inv,Tgap,comp_inv,grad_var,comp_hp,single_refocus,sinc_weight);
-%[b1, gz, gz_flip, gz_off,inv_start,inv_dist,kv_locs] = gen_FVEVS_singleinv(grad_ramp,Grad_val,B1_val_hp,B1_val_inv,Tgap,comp_inv,sinc_weight);
+if(single_refocus==1)
+    [b1, gz, gz_flip, gz_off,inv_start,inv_dist,kv_locs] = gen_FVEVS_singleinv(grad_ramp,Grad_val,B1_val_hp,B1_val_inv,Tgap,comp_inv,sinc_weight);
+else
+    [b1, gz, gz_flip, gz_off,inv_start,inv_dist,kv_locs] = gen_FVEVS(grad_ramp,Grad_val,B1_val_hp,B1_val_inv,Tgap,comp_inv,grad_var,comp_hp,single_refocus,sinc_weight);
+end
+
 t = [0:length(b1)-1]*dtGz;
 % kv_locs(1)
 % 0th and 1st moment calculations
