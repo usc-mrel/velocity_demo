@@ -72,8 +72,8 @@ phi_sp = -1j*[0:pi:(num_sp-1)*pi];
 b1 = []; 
 for step=1:num_sp-1   
     b1_ud = [hpscale(step)*rf_sub.*exp(phi_sp(step))/2      gap    grad_wait  gap  ...
-        inv.*exp(1i*phi(step)).*inv_amp(step) gap     grad_wait gap  rfsub_wait  gap   grad_wait  gap  ...
-        inv.*exp(1i*phi(step)).*inv_amp(step)         gap grad_wait gap ];
+        inv.*exp(1i*phi(2*step-1)).*inv_amp(2*step-1) gap     grad_wait gap  rfsub_wait  gap   grad_wait  gap  ...
+        inv.*exp(1i*phi(2*step)).*inv_amp(2*step)         gap grad_wait gap ];
     b1 = [b1   b1_ud];
 end
 b1 = [b1 hpscale(end)*rf_sub.*exp(phi_sp(step))]*1e-2;
