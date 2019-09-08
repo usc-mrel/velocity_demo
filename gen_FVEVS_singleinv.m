@@ -103,9 +103,11 @@ kv_locs = ceil(length(rfsub_wait)/2 + [0:(num_sp-1)]*(inv_dist));
 [m0,t] = grad_moment(gz,dtGz,0,inv_start,inv_dist,1);
 [m1,~] = grad_moment(gz,dtGz,1,inv_start,inv_dist,1);
 
-% this is to fix the bug with improper fv encoding
+% FVE_bugfix this is to fix the bug with improper fv encoding
 [~,ind]=sort(m1(kv_locs));
 hpscale(ind)=hpscale;
+
+% endFVE_bugfix this is to fix the bug with improper fv encoding
 % full b1 waveform
 b1 = []; 
 for itr=1:num_sp-1  
