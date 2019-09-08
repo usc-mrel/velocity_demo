@@ -4,7 +4,7 @@ function [b1, gz, gz_flip, gz_off, inv_start, inv_dist, kv_locs] = gen_FVEVS_sin
 % [b1, gz, gz_flip, gz_off, inv_start, inv_dist, kv_locs] = gen_FVEVS_singleinv(grad_ramp,Grad_val,B1_val_hp,B1_val_inv,Tgap, comp_inv,sinc_weight)
 % 
 %
-num_sp=5;
+num_sp=9;
 gam = 42.58; % MHz/T
 dtGz = 0.002; % ms
 
@@ -40,7 +40,7 @@ grad_wait = zeros(1, length(grad_bp));
 if (sinc_weight)
    % rf_weight = dzrf(9,4,'inv','max',0.1,0.0001);
     %rf_weight = dzrf(9,4,'inv','pm',0.1,0.001); 
-    rf_weight = dzrf(num_sp,2,'inv','max',0.01,0.001);
+    rf_weight = dzrf(num_sp,8,'inv','min',0.01,0.001);
     hpscale = num_sp/sum(rf_weight)*rf_weight;
     %disp(hpscale)
 else
@@ -68,26 +68,21 @@ rfsub_wait = zeros(1,length(rf_sub));
 vshift = 0;
 phi_sp = -1j*[0:pi:(num_sp-1)*pi];
 
-% full b1 waveform
-b1 = []; 
-for itr=1:num_sp-1  
-    b1_ud = [hpscale(itr)*rf_sub.*exp(phi_sp(itr))/(2)      gap    grad_wait  gap  ...
-         inv.*exp(1i*phi(itr)).*exp(phi_sp(itr))  gap   grad_wait gap];
-    b1 = [b1   b1_ud];
-end
-b1 = [b1 hpscale(end)*rf_sub.*exp(phi_sp(end))]*1e-2;
-
-rho = abs(b1);
-phi = angle(b1);
 
 %% gv calc
 
 % full gradient waveform
 gz = [];
 for step = 1:num_sp-1
+    if(mod(step,2))
     gz_ud = [rfsub_wait    gap   (-1)^step*grad_bp     gap  ...
         inv_wait gap (-1)^(step+1)*grad_bp    gap];
     gz = [gz gz_ud];
+    else
+        gz_ud = [rfsub_wait    gap   (-1)^(step+1)*grad_bp     gap  ...
+        inv_wait gap (-1)^(step+1)*grad_bp    gap];
+    gz = [gz gz_ud];
+    end
 
 end
 gz = [gz rfsub_wait];
@@ -103,6 +98,25 @@ inv_start = length([rfsub_wait gap grad_wait gap zeros(1,length(inv_wait)/2)]);
 inv_dist  = length([inv_wait gap grad_wait gap rfsub_wait gap grad_wait gap]);
 
 kv_locs = ceil(length(rfsub_wait)/2 + [0:(num_sp-1)]*(inv_dist));
+
+% [moment_vec,t] = grad_moment(grad,dt,order,inv_start,inv_dist,b1scale)
+[m0,t] = grad_moment(gz,dtGz,0,inv_start,inv_dist,1);
+[m1,~] = grad_moment(gz,dtGz,1,inv_start,inv_dist,1);
+
+% this is to fix the bug with improper fv encoding
+[~,ind]=sort(m1(kv_locs));
+hpscale(ind)=hpscale;
+% full b1 waveform
+b1 = []; 
+for itr=1:num_sp-1  
+    b1_ud = [hpscale(itr)*rf_sub.*exp(phi_sp(itr))/(2)      gap    grad_wait  gap  ...
+         inv.*exp(1i*phi(itr)).*exp(phi_sp(itr))  gap   grad_wait gap];
+    b1 = [b1   b1_ud];
+end
+b1 = [b1 hpscale(end)*rf_sub.*exp(phi_sp(end))]*1e-2;
+
+rho = abs(b1);
+phi = angle(b1);
 
 %% Plotting
 

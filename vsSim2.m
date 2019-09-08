@@ -6,7 +6,7 @@
 clear all;
 
 % amplitudes
-B1_val_hp = 7; %10.20; % uT
+B1_val_hp = 3.2; %10.20; % uT
 B1_val_inv = 10.20; % uT
 Grad_val = 1.45; % mT/cm
 
@@ -20,7 +20,7 @@ dtGz = 0.002;
 comp_hp = 0;
 comp_inv = 0; % 90-180-90, 90-240-90, 90-360-90
 single_refocus = 0;
-grad_var = 2;
+grad_var = 3;
 sinc_weight = 1;
 % variation 1: 4 unipolars
 % variation 2: 2 unipolars (middle 180s)
@@ -30,8 +30,8 @@ sinc_weight = 1;
 % variation 6: missing the dephasing unipolars
 % variation 7: 4 bipolars  
 
-%[b1, gz, gz_flip, gz_off,inv_start,inv_dist,kv_locs] = gen_FVEVS(grad_ramp,Grad_val,B1_val_hp,B1_val_inv,Tgap,comp_inv,grad_var,comp_hp,single_refocus,sinc_weight);
-[b1, gz, gz_flip, gz_off,inv_start,inv_dist,kv_locs] = gen_FVEVS_singleinv(grad_ramp,Grad_val,B1_val_hp,B1_val_inv,Tgap,comp_inv,sinc_weight);
+[b1, gz, gz_flip, gz_off,inv_start,inv_dist,kv_locs] = gen_FVEVS(grad_ramp,Grad_val,B1_val_hp,B1_val_inv,Tgap,comp_inv,grad_var,comp_hp,single_refocus,sinc_weight);
+%[b1, gz, gz_flip, gz_off,inv_start,inv_dist,kv_locs] = gen_FVEVS_singleinv(grad_ramp,Grad_val,B1_val_hp,B1_val_inv,Tgap,comp_inv,sinc_weight);
 t = [0:length(b1)-1]*dtGz;
 % kv_locs(1)
 % 0th and 1st moment calculations
@@ -102,38 +102,68 @@ toc;
 %% Vs stripe artifact
 figure(2); clf;
 
-% subplot(5,1,1)
-% plot(t,gz,t,abs(b1)*10); xlabel('time (ms)'); 
-% legend('gz','b1');
+% subplot(1,3,1);
+% imagesc(df,z0,squeeze(mz(:,:,b1scale==1))); axis square; colorbar; caxis([-1 0.4]);
+% xlabel('\Delta f (Hz)'); ylabel('z (cm)');
+
+subplot(5,1,1)
+plot(t,gz,t,abs(b1)*10); xlabel('time (ms)'); 
+legend('gz','b1');
 
 % toplot = squeeze(mz(:,df==0,:));
-% subplot(5,1,2);
+% subplot(5,2,2);
 % imagesc(b1scale,z0,toplot); 
 %  colorbar; caxis([-1 0.2]);
 % xlabel('B1 scale'); ylabel('z (cm)');
 % title('Label');
 
-% toplot = squeeze(mz_off(:,df==0,:));
-% subplot(5,1,3);
+toplot = squeeze(mz(:,df==0,:));
+subplot(5,1,2);
+imagesc(b1scale,z0,toplot); 
+ colorbar; caxis([-1 0.2]);
+xlabel('B1 scale'); ylabel('z (cm)');
+title('Label');
+
+% toplot = squeeze(mz_flip(:,df==0,:));
+% subplot(5,2,5);
 % imagesc(b1scale,z0,toplot); 
 %  colorbar; caxis([-1 0.2]);
 % xlabel('B1 scale'); ylabel('z (cm)');
 % title('Control')
 
+toplot = squeeze(mz_off(:,df==0,:));
+subplot(5,1,3);
+imagesc(b1scale,z0,toplot); 
+ colorbar; caxis([-1 0.2]);
+xlabel('B1 scale'); ylabel('z (cm)');
+title('Control')
+
+toplot = mz(:,df==0,:)-mz_off(:,df==0,:);
+toplot = squeeze(toplot);
+subplot(5,1,4);
+imagesc(b1scale,z0,toplot); 
+ colorbar; caxis([-0.05 0.05]);
+xlabel('B1 scale'); ylabel('z (cm)');
+title('Label - Control');
+
 % toplot = mz(:,df==0,:)-mz_off(:,df==0,:);
 % toplot = squeeze(toplot);
-% subplot(1,2,1);
+% subplot(5,2,8);
 % imagesc(b1scale,z0,toplot); 
-%  colorbar; caxis([-0.05 0.05]);
+%  colorbar; caxis([-0.2 0.2]);
 % xlabel('B1 scale'); ylabel('z (cm)');
 % title('Label - Control');
 
-subplot(1,2,1);
+% complex sum!? 
+% Vs profile
+
+%figure(3); clf;
+subplot(5,2,9);
 imagesc(df,v,squeeze(mz2(:,:,b1scale==1))); colorbar; caxis([-1 1]);
-xlabel('\Delta f (Hz)'); ylabel('v (cm/s)'); title('B1scale=1');
-subplot(1,2,2);
+xlabel('\Delta f (Hz)'); ylabel('v (cm/s)');
+subplot(5,2,10);
 imagesc(b1scale,v,squeeze(mz2(:,df==0,:))); colorbar; caxis([-1 1]);
-xlabel('B1 scale'); ylabel('v (cm/s)'); title('\Deltaf=0');
+xlabel('B1 scale'); ylabel('v (cm/s)');
 %%
 idx=2:7; idx2=10:15;
 mz_0v = permute(repmat(squeeze(mz_off(z0==0,df==0,idx)),[1 length(v)]),[2 1]);
@@ -159,21 +189,4 @@ legend(['\Deltaf = ' num2str(df(10))],['\Deltaf = ' num2str(df(11))], ...
 
 
    
-%%
-figure(4)
-% subplot(4,1,1)
-% plot(v,squeeze(mz2(:,df==0,b1scale==1)),[-15 15],[0 0],'r*'); 
-% xlabel('v (cm/s)'); ylabel('Mz'); axis tight; legend('Mz','v=15');
-% title('TBW=5');
-% subplot(4,1,2)
-% plot(v,squeeze(mz2(:,df==0,b1scale==1)),[-15 15],[0 0],'r*'); 
-% xlabel('v (cm/s)'); ylabel('Mz'); axis tight; legend('Mz','v=15');
-% title('TBW=4');
-% subplot(4,1,3)
-% plot(v,squeeze(mz2(:,df==0,b1scale==1)),[-15 15],[0 0],'r*'); 
-% xlabel('v (cm/s)'); ylabel('Mz'); axis tight; legend('Mz','v=15');
-% title('TBW=3');
-subplot(4,1,4)
-plot(v,squeeze(mz2(:,df==0,b1scale==1)),[-15 15],[0 0],'r*'); 
-xlabel('v (cm/s)'); ylabel('Mz'); axis tight; legend('Mz','v=15');
-title('TBW=2');
+

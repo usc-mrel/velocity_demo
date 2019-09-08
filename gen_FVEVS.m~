@@ -20,13 +20,13 @@ Tgap_res = round(Tgap/dtGz);
 grad = [1:grad_ramp_res grad_ramp_res:-1:1]/grad_ramp_res*Grad_val;
 if grad_var==2 || grad_var==3 || grad_var==5 || grad_var==7
     gap_bp = zeros(1,100);
-    grad_bp = 0*[decimate(grad,2) gap_bp gap_bp -decimate(grad,2)];
+    grad_bp = 1*[decimate(grad,2) gap_bp gap_bp -decimate(grad,2)];
     %grad = 1.67*2*[1:grad_ramp_res grad_ramp_res*ones(1,200) grad_ramp_res:-1:1]/grad_ramp_res*Grad_val;
     if (sinc_weight==0)
         grad = 1/3*[1:grad_ramp_res grad_ramp_res*ones(1,200) grad_ramp_res:-1:1]/grad_ramp_res*Grad_val;
         max(grad)
     else
-        grad = 1.0*[1:grad_ramp_res grad_ramp_res*ones(1,200) grad_ramp_res:-1:1]/grad_ramp_res*Grad_val;
+        grad = 2*[1:grad_ramp_res grad_ramp_res*ones(1,200) grad_ramp_res:-1:1]/grad_ramp_res*Grad_val;
         max(grad)
     end
 end
