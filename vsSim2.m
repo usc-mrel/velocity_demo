@@ -19,7 +19,7 @@ dtGz = 0.002;
 
 comp_hp = 0;
 comp_inv = 0; % 90-180-90, 90-240-90, 90-360-90
-single_refocus = 0;
+single_refocus = 1;
 grad_var = 3;
 sinc_weight = 1;
 % variation 1: 4 unipolars
@@ -77,8 +77,8 @@ mx0 = zeros(Nv, Ndf, Nb1); my0 = zeros(Nv,Ndf, Nb1); mz0 = ones(Nv, Ndf, Nb1);
 %T2 = 0.2; %.150;
 
 % no relaxation
-T1 = 100;
-T2 = 100;
+T1 = 1.5;
+T2 = 0.05;
 
 % silicone oil
 %T1 = 1.111;

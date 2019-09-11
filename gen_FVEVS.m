@@ -6,7 +6,7 @@ num_sp=9;
 gam = 42.58; % MHz/T
 dtGz = 0.002; % ms
 
-hp_dur = (9/num_sp)*40/360/gam/B1_val_hp*10^3;
+hp_dur = (9/num_sp)*20/360/gam/B1_val_hp*10^3;
 inv_dur = 180/360/gam/B1_val_inv*10^3;
 
 % res
@@ -59,7 +59,7 @@ inv_amp = ones(1,18);
 phi = [0 0 pi pi pi 0 0 pi pi pi 0 0  0 pi pi 0];
 
 if (sinc_weight)
-    rf_weight = dzrf(num_sp,6,'inv','max',0.05,0.001);
+    rf_weight = dzrf(num_sp,8,'inv','max',0.1,0.001);
     %rf_weight = dzrf(9,4,'inv','pm',0.01,0.01); 
     hpscale = num_sp/sum(rf_weight)*rf_weight;
     disp(hpscale)
@@ -71,9 +71,9 @@ phi_sp = -1j*[0:pi:(num_sp-1)*pi];
 % b1 calc
 b1 = []; 
 for step=1:num_sp-1   
-    b1_ud = [hpscale(step)*rf_sub.*exp(phi_sp(step))/2      gap    grad_wait  gap  ...
+    b1_ud = [hpscale(step)*rf_sub.*exp(phi_sp(step))      gap    grad_wait  gap  ...
         inv.*exp(1i*phi(2*step-1)).*inv_amp(2*step-1) gap     grad_wait gap  rfsub_wait  gap   grad_wait  gap  ...
-        inv.*exp(1i*phi(2*step-1)).*inv_amp(2*step-1)         gap grad_wait gap ];
+        inv.*exp(1i*phi(2*step)).*inv_amp(2*step)         gap grad_wait gap ];
     b1 = [b1   b1_ud];
 end
 b1 = [b1 hpscale(end)*rf_sub.*exp(phi_sp(step))]*1e-2;
