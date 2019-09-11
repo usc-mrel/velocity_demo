@@ -19,9 +19,10 @@ dtGz = 0.002;
 
 comp_hp = 0;
 comp_inv = 0; % 90-180-90, 90-240-90, 90-360-90
-single_refocus = 1;
+single_refocus = 1; %0,1
 grad_var = 3;
 sinc_weight = 1;
+num_sp = 5; % 5,9
 % variation 1: 4 unipolars
 % variation 2: 2 unipolars (middle 180s)
 % variation 3: 2 unipolars, 2 bipolars
@@ -31,9 +32,9 @@ sinc_weight = 1;
 % variation 7: 4 bipolars  
 
 if(single_refocus==1)
-    [b1, gz, gz_flip, gz_off,inv_start,inv_dist,kv_locs] = gen_FVEVS_singleinv(grad_ramp,Grad_val,B1_val_hp,B1_val_inv,Tgap,comp_inv,sinc_weight);
+    [b1, gz, gz_flip, gz_off,inv_start,inv_dist,kv_locs] = gen_FVEVS_singleinv(grad_ramp,Grad_val,B1_val_hp,B1_val_inv,Tgap,comp_inv,sinc_weight,num_sp);
 else
-    [b1, gz, gz_flip, gz_off,inv_start,inv_dist,kv_locs] = gen_FVEVS(grad_ramp,Grad_val,B1_val_hp,B1_val_inv,Tgap,comp_inv,grad_var,comp_hp,single_refocus,sinc_weight);
+    [b1, gz, gz_flip, gz_off,inv_start,inv_dist,kv_locs] = gen_FVEVS(grad_ramp,Grad_val,B1_val_hp,B1_val_inv,Tgap,comp_inv,grad_var,comp_hp,single_refocus,sinc_weight,num_sp);
 end
 
 t = [0:length(b1)-1]*dtGz;
@@ -63,7 +64,7 @@ drawnow;
 %--------------------------------------------------------------------------
  
 z0 = linspace(-2.5,2.5,15);
-v = linspace(-100,100,111);
+v = linspace(-120,120,211);
 df = linspace(-200,200,15); 
 b1scale = linspace(.6,1.4,11);
 
@@ -77,8 +78,8 @@ mx0 = zeros(Nv, Ndf, Nb1); my0 = zeros(Nv,Ndf, Nb1); mz0 = ones(Nv, Ndf, Nb1);
 %T2 = 0.2; %.150;
 
 % no relaxation
-T1 = 1.5;
-T2 = 0.05;
+T1 = 1.664;
+T2 = 0.2;
 
 % silicone oil
 %T1 = 1.111;

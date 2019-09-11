@@ -1,12 +1,12 @@
-function [b1, gz, gz_flip, gz_off, inv_start, inv_dist, kv_locs] = gen_FVEVS(grad_ramp,Grad_val,B1_val_hp,B1_val_inv,Tgap, comp_inv, grad_var, comp_hp,single_refocus,sinc_weight)
+function [b1, gz, gz_flip, gz_off, inv_start, inv_dist, kv_locs] = gen_FVEVS(grad_ramp,Grad_val,B1_val_hp,B1_val_inv,Tgap, comp_inv, grad_var, comp_hp,single_refocus,sinc_weight,num_sp)
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here
 
-num_sp=9;
+%num_sp=9;
 gam = 42.58; % MHz/T
 dtGz = 0.002; % ms
 
-hp_dur = (9/num_sp)*20/360/gam/B1_val_hp*10^3;
+hp_dur = (360/num_sp)/2/360/gam/B1_val_hp*10^3;
 inv_dur = 180/360/gam/B1_val_inv*10^3;
 
 % res
@@ -59,8 +59,11 @@ inv_amp = ones(1,18);
 phi = [0 0 pi pi pi 0 0 pi pi pi 0 0  0 pi pi 0];
 
 if (sinc_weight)
+    if (num_sp>8)
     rf_weight = dzrf(num_sp,8,'inv','max',0.1,0.001);
-    %rf_weight = dzrf(9,4,'inv','pm',0.01,0.01); 
+    else
+    rf_weight = dzrf(9,4,'inv','max',0.1,0.01); 
+    end
     hpscale = num_sp/sum(rf_weight)*rf_weight;
     disp(hpscale)
 else

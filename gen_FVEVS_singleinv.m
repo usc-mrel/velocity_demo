@@ -1,12 +1,15 @@
-function [b1, gz, gz_flip, gz_off, inv_start, inv_dist, kv_locs] = gen_FVEVS_singleinv(grad_ramp,Grad_val,B1_val_hp,B1_val_inv,Tgap, comp_inv,sinc_weight)
+function [b1, gz, gz_flip, gz_off, inv_start, inv_dist, kv_locs] = gen_FVEVS_singleinv(grad_ramp,Grad_val,B1_val_hp,B1_val_inv,Tgap, comp_inv,sinc_weight,num_sp)
 % Calculate FVE-VS pulse with single inversions!
 %
 % [b1, gz, gz_flip, gz_off, inv_start, inv_dist, kv_locs] = gen_FVEVS_singleinv(grad_ramp,Grad_val,B1_val_hp,B1_val_inv,Tgap, comp_inv,sinc_weight)
 %
 %
 ftype='max';
-tbw=4;
-num_sp=5;
+if (num_sp==9)
+   tbw=7; 
+else
+    tbw=4;
+end
 d1=0.01;
 vfov_pres=100;
 d2=0.001;
@@ -19,7 +22,7 @@ Tgap_res = round(Tgap/dtGz);
 gap = zeros(1,Tgap_res);
 
 % durations
-hp_dur = (9/num_sp)*30/360/gam/B1_val_hp*10^3;
+hp_dur = (9/num_sp)*20/360/gam/B1_val_hp*10^3;
 inv_dur = 180/360/gam/B1_val_inv*10^3;
 % B1_val_hp=hp_dur/inv_dur*B1_val_hp;
 % hp_dur=inv_dur;
@@ -174,7 +177,7 @@ delta_kv=(diff(m1(kv_locs)))
 
 b1 = [];
 for itr=1:num_sp-1
-    b1_ud = [hpscale(itr)*rf_sub.*exp(phi_sp(itr))/1.5      gap    grad_wait  gap  ...
+    b1_ud = [hpscale(itr)*rf_sub.*exp(phi_sp(itr))/1.0      gap    grad_wait  gap  ...
         inv.*exp(1i*phi(itr)).*exp(phi_sp(itr))  gap   grad_wait gap];
     b1 = [b1   b1_ud];
 end
