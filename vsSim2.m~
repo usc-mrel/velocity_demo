@@ -30,10 +30,10 @@ dtGz = 0.002;
 
 comp_hp = 0;
 comp_inv = 0; % 90-180-90, 90-240-90, 90-360-90
-single_refocus = 0; %0,1
+single_refocus = 1; %0,1
 grad_var = 3;
 sinc_weight = 1;
-num_sp = 9; % 5,9
+num_sp = 5; % 5,9
 % variation 1: 4 unipolars
 % variation 2: 2 unipolars (middle 180s)
 % variation 3: 2 unipolars, 2 bipolars
