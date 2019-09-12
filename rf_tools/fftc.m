@@ -25,6 +25,6 @@ function M = fftc(m, varargin)
     M = m;
   end
   if ss ~= 0, M = M/sum(abs(M(:)).^2)*ss; end
-
+    
 end
 

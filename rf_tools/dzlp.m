@@ -11,6 +11,7 @@ w = di/tb;
 f = [0 (1-w)*(tb/2) (1+w)*(tb/2) (n/2)]/(n/2);
 m = [1 1 0 0];
 w = [1 d1/d2];
+%f(find(f>1))=1-0.05;
 if exist('remez'),   % finally, the m script, will call .mex if available
   h = eval('remez(n-1,f,m,w)'); 
 else
