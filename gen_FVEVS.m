@@ -27,7 +27,7 @@ if grad_var==2 || grad_var==3 || grad_var==5 || grad_var==7
         grad = 1/3*[1:grad_ramp_res grad_ramp_res*ones(1,200) grad_ramp_res:-1:1]/grad_ramp_res*Grad_val;
         max(grad)
     else
-        grad = 1.4*[1:grad_ramp_res grad_ramp_res*ones(1,200) grad_ramp_res:-1:1]/grad_ramp_res*Grad_val;
+        grad = 1.1*[1:grad_ramp_res grad_ramp_res*ones(1,200) grad_ramp_res:-1:1]/grad_ramp_res*Grad_val;
         max(grad)
     end
 end
@@ -66,6 +66,7 @@ if (sinc_weight)
     rf_weight = dzrf(9,4,'inv','max',0.1,0.01); 
     end
     hpscale = num_sp/sum(rf_weight)*rf_weight;
+    %hpscale = [4.9395      3.9078     -1.9372     0.23634     0.20475    -0.65778     0.50308    -0.35652     0.83252];
     disp(hpscale)
 else
     hpscale = ones(1,num_sp);

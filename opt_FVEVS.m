@@ -20,14 +20,14 @@ Tgap_res = round(Tgap/dtGz);
 % sub-waveforms
 grad = [1:grad_ramp_res grad_ramp_res:-1:1]/grad_ramp_res*Grad_val;
 if grad_var==2 || grad_var==3 || grad_var==5 || grad_var==7
-    gap_bp = zeros(1,round(200*(0.002/dtGz)));
+    gap_bp = zeros(1,round(100*(0.002/dtGz)));
     grad_bp = 0*[decimate(grad,2) gap_bp gap_bp -decimate(grad,2)];
     %grad = 1.67*2*[1:grad_ramp_res grad_ramp_res*ones(1,200) grad_ramp_res:-1:1]/grad_ramp_res*Grad_val;
     if (sinc_weight==0)
         grad = 1/3*[1:grad_ramp_res grad_ramp_res*ones(1,200) grad_ramp_res:-1:1]/grad_ramp_res*Grad_val;
         max(grad)
     else
-        grad = 1.4*[1:grad_ramp_res grad_ramp_res*ones(1,round(400*(0.002/dtGz))) grad_ramp_res:-1:1]/grad_ramp_res*Grad_val;
+        grad = 1.1*[1:grad_ramp_res grad_ramp_res*ones(1,round(200*(0.002/dtGz))) grad_ramp_res:-1:1]/grad_ramp_res*Grad_val;
         max(grad); 
     end
 end
@@ -70,7 +70,7 @@ phi = [0 0 pi pi pi 0 0 pi pi pi 0 0  0 pi pi 0];
 % else
 %     hpscale = ones(1,num_sp);
 % end
-hpscale = hpscale_0;
+hpscale = real(hpscale_0);
 phi_sp = -1j*[0:pi:(num_sp-1)*pi];
 
 % b1 calc
@@ -201,9 +201,9 @@ xlabel('time (ms)'); ylabel('Gv (G/cm)'); colormap jet;
 % bloch simulations
 %%%%%%%
 
-v = linspace(-120,120,211);
-df = linspace(-200,200,15); 
-b1scale = linspace(.6,1.4,11);
+v = linspace(-104,104,311);
+df = linspace(-125,125,7); 
+b1scale = linspace(.7,1.2,6);
 
 Nb1 = length(b1scale); Nv = length(v); Ndf = length(df);
 
@@ -217,19 +217,51 @@ T2 = 10; %0.2;
 tic;
 [~,~,mz2] = blochvb1(b1,gz,dtGz*1e-3,T1,T2,df,0,v,b1scale,0,mx0,my0,mz0);
 toc;
+%%
+figure(2); %'units','normalized','outerposition',[0 0 0.5 0.5])
+Figgy2 = gcf;
+Figgy2.Position = [0, 0, 1500, 300];
+subplot(1,5,1)
+plot(v,squeeze(mz2(:,df==0,b1scale==1)),[-15 15],[0 0],'r*'); 
+xlabel('v (cm/s)'); ylabel('Mz'); axis tight; legend('Mz','v=15');
+mz_0v = permute(repmat(squeeze(mz2(v==0,df==0,:)),[1 length(v)]),[2 1]);
+mz_0v_df = repmat(squeeze(mz2(v==0,:,b1scale==1)),[length(v) 1]);
 
+subplot(1,5,2)
+imagesc(b1scale,v, mz_0v - squeeze(mz2(:,df==0,:))); 
+ylim([-2 2]); % ylim([-0.02 0.02]); 
+caxis([-0.02 0.02]);
+colorbar; title('Control-Label (\Deltaf=0)');
+xlabel('B1scale'); ylabel('v (cm/s)');
+
+subplot(1,5,3)
+imagesc(df,v, mz_0v_df - squeeze(mz2(:,:,b1scale==1))); 
+ylim([-2 2]); % ylim([-0.02 0.02]); 
+caxis([-0.02 0.02]); 
+colorbar; title('Control-Label (B1scale=1)');
+xlabel('\Delta f (Hz)'); ylabel('v (cm/s)');
+
+subplot(1,5,4);
+imagesc(b1scale,v,squeeze(mz2(:,df==0,:))); colorbar; caxis([-1 1]);
+xlabel('B1scale'); ylabel('v (cm/s)');
+title('\Delta f (Hz)');
+
+subplot(1,5,5);
+imagesc(df,v,squeeze(mz2(:,:,b1scale==1))); colorbar; caxis([-1 1]);
+xlabel('\Delta f (Hz)'); ylabel('v (cm/s)');
+title('B1scale=1');
 %% Vs profiles
 
 % control-label signal (blood)
-vs_lab_blood_idx = (v>20&v<104)|(v>-104&v<-20);
-blood_signal = mz2(vs_lab_blood_idx,:,:) - 1; % ideal to have Mz=-1 (inversion) of blood
+vs_lab_blood_idx = (v>10&v<104)|(v>-104&v<-10);
+blood_signal = repmat(mz2(v==0,:,:),[sum(vs_lab_blood_idx) 1 1])-mz2(vs_lab_blood_idx,:,:); % ideal to have Mz=-1 (inversion) of blood
 
 % contorl-label signal (myocardium)
 vs_lab_myo_idx = v>-2&v<2;
-myo_signal = mz2(vs_lab_myo_idx,:,:) - mz2(v==0,:,:); % ideal to have no labeled signal over myo
+myo_signal = mz2(vs_lab_myo_idx,:,:) - repmat(mz2(v==0,:,:),[sum(vs_lab_myo_idx) 1 1]); % ideal to have no labeled signal over myo
    
-lambda = 1;  %0.5;
-J = (lambda)*mean(myo_signal(:).^2) % + (1-lambda)*1/mean(blood_signal(:).^2)
+lambda = 0.5;  %0.5;
+J = (lambda*100)*norm(myo_signal(:)) - (1-lambda)*(norm(blood_signal(:)));
 
 end
 

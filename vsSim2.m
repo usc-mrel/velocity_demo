@@ -17,7 +17,7 @@
 clear all;
 
 % amplitudes
-B1_val_hp = 3.2; %10.20; % uT
+B1_val_hp = 1.72; %10.20; % uT
 B1_val_inv = 10.20; % uT
 Grad_val = 1.45; % mT/cm
 
@@ -74,8 +74,8 @@ drawnow;
 % Demo Pulse Simulation
 %--------------------------------------------------------------------------
  
-z0 = linspace(-2.5,2.5,15);
-v = linspace(-120,120,211);
+z0 = linspace(-2.5,2.5,5);
+v = linspace(-120,120,311);
 df = linspace(-200,200,15); 
 b1scale = linspace(.6,1.4,11);
 
@@ -116,93 +116,99 @@ end
 toc;
 
 %% Vs stripe artifact
-figure(2); clf;
-
-% subplot(1,3,1);
-% imagesc(df,z0,squeeze(mz(:,:,b1scale==1))); axis square; colorbar; caxis([-1 0.4]);
-% xlabel('\Delta f (Hz)'); ylabel('z (cm)');
-
-subplot(5,1,1)
-plot(t,gz,t,abs(b1)*10); xlabel('time (ms)'); 
-legend('gz','b1');
-
+% figure(2); clf;
+% 
+% % subplot(1,3,1);
+% % imagesc(df,z0,squeeze(mz(:,:,b1scale==1))); axis square; colorbar; caxis([-1 0.4]);
+% % xlabel('\Delta f (Hz)'); ylabel('z (cm)');
+% 
+% subplot(5,1,1)
+% plot(t,gz,t,abs(b1)*10); xlabel('time (ms)'); 
+% legend('gz','b1');
+% 
+% % toplot = squeeze(mz(:,df==0,:));
+% % subplot(5,2,2);
+% % imagesc(b1scale,z0,toplot); 
+% %  colorbar; caxis([-1 0.2]);
+% % xlabel('B1 scale'); ylabel('z (cm)');
+% % title('Label');
+% 
 % toplot = squeeze(mz(:,df==0,:));
-% subplot(5,2,2);
+% subplot(5,1,2);
 % imagesc(b1scale,z0,toplot); 
 %  colorbar; caxis([-1 0.2]);
 % xlabel('B1 scale'); ylabel('z (cm)');
 % title('Label');
-
-toplot = squeeze(mz(:,df==0,:));
-subplot(5,1,2);
-imagesc(b1scale,z0,toplot); 
- colorbar; caxis([-1 0.2]);
-xlabel('B1 scale'); ylabel('z (cm)');
-title('Label');
-
-% toplot = squeeze(mz_flip(:,df==0,:));
-% subplot(5,2,5);
+% 
+% % toplot = squeeze(mz_flip(:,df==0,:));
+% % subplot(5,2,5);
+% % imagesc(b1scale,z0,toplot); 
+% %  colorbar; caxis([-1 0.2]);
+% % xlabel('B1 scale'); ylabel('z (cm)');
+% % title('Control')
+% 
+% toplot = squeeze(mz_off(:,df==0,:));
+% subplot(5,1,3);
 % imagesc(b1scale,z0,toplot); 
 %  colorbar; caxis([-1 0.2]);
 % xlabel('B1 scale'); ylabel('z (cm)');
 % title('Control')
-
-toplot = squeeze(mz_off(:,df==0,:));
-subplot(5,1,3);
-imagesc(b1scale,z0,toplot); 
- colorbar; caxis([-1 0.2]);
-xlabel('B1 scale'); ylabel('z (cm)');
-title('Control')
-
-toplot = mz(:,df==0,:)-mz_off(:,df==0,:);
-toplot = squeeze(toplot);
-subplot(5,1,4);
-imagesc(b1scale,z0,toplot); 
- colorbar; caxis([-0.05 0.05]);
-xlabel('B1 scale'); ylabel('z (cm)');
-title('Label - Control');
-
+% 
 % toplot = mz(:,df==0,:)-mz_off(:,df==0,:);
 % toplot = squeeze(toplot);
-% subplot(5,2,8);
+% subplot(5,1,4);
 % imagesc(b1scale,z0,toplot); 
-%  colorbar; caxis([-0.2 0.2]);
+%  colorbar; caxis([-0.05 0.05]);
 % xlabel('B1 scale'); ylabel('z (cm)');
 % title('Label - Control');
+% 
+% % toplot = mz(:,df==0,:)-mz_off(:,df==0,:);
+% % toplot = squeeze(toplot);
+% % subplot(5,2,8);
+% % imagesc(b1scale,z0,toplot); 
+% %  colorbar; caxis([-0.2 0.2]);
+% % xlabel('B1 scale'); ylabel('z (cm)');
+% % title('Label - Control');
+% 
+% % complex sum!? 
+% % Vs profile
+% 
+% %figure(3); clf;
+% subplot(5,2,9);
+% imagesc(df,v,squeeze(mz2(:,:,b1scale==1))); colorbar; caxis([-1 1]);
+% xlabel('\Delta f (Hz)'); ylabel('v (cm/s)');
+% subplot(5,2,10);
+% imagesc(b1scale,v,squeeze(mz2(:,df==0,:))); colorbar; caxis([-1 1]);
+% xlabel('B1 scale'); ylabel('v (cm/s)');
+%%
+figure(3)
+subplot(1,5,1)
+plot(v,squeeze(mz2(:,df==0,b1scale==1)),[-15 15],[0 0],'r*'); 
+xlabel('v (cm/s)'); ylabel('Mz'); axis tight; legend('Mz','v=15');
+mz_0v = permute(repmat(squeeze(mz_off(z0==0,df==0,:)),[1 length(v)]),[2 1]);
+mz_0v_df = repmat(squeeze(mz_off(z0==0,:,b1scale==1)),[length(v) 1]);
 
-% complex sum!? 
-% Vs profile
+subplot(1,5,2)
+imagesc(b1scale,v, mz_0v - squeeze(mz2(:,df==0,:))); 
+ylim([-2 2]); % ylim([-0.02 0.02]); 
+caxis([-0.02 0.02]);
+colorbar; title('Control-Label (\Deltaf=0)');
+xlabel('B1scale'); ylabel('v (cm/s)');
 
-%figure(3); clf;
-subplot(5,2,9);
+subplot(1,5,3)
+imagesc(df,v, mz_0v_df - squeeze(mz2(:,:,b1scale==1))); 
+ylim([-2 2]); % ylim([-0.02 0.02]); 
+caxis([-0.02 0.02]); 
+colorbar; title('Control-Label (B1scale=1)');
+xlabel('\Delta f (Hz)'); ylabel('v (cm/s)');
+
+subplot(1,5,4);
+imagesc(b1scale,v,squeeze(mz2(:,df==0,:))); colorbar; caxis([-1 1]);
+xlabel('B1scale'); ylabel('v (cm/s)');
+title('\Delta f (Hz)');
+
+subplot(1,5,5);
 imagesc(df,v,squeeze(mz2(:,:,b1scale==1))); colorbar; caxis([-1 1]);
 xlabel('\Delta f (Hz)'); ylabel('v (cm/s)');
-subplot(5,2,10);
-imagesc(b1scale,v,squeeze(mz2(:,df==0,:))); colorbar; caxis([-1 1]);
-xlabel('B1 scale'); ylabel('v (cm/s)');
-%%
-idx=2:7; idx2=10:15;
-mz_0v = permute(repmat(squeeze(mz_off(z0==0,df==0,idx)),[1 length(v)]),[2 1]);
-mz_0v_df = repmat(squeeze(mz_off(z0==0,idx2,b1scale==1)),[length(v) 1]);
-figure(3)
-subplot(1,3,1)
-plot(v,squeeze(mz2(:,df==0,b1scale==1)),[-15 15],[0 0],'r*'); axis square; 
-xlabel('v (cm/s)'); ylabel('Mz'); axis tight; legend('Mz','v=15');
-subplot(1,3,2)
-plot(v,squeeze(mz2(:,df==0,idx)) - mz_0v); axis square; 
-xlim([-2 2]); ylim([-0.02 0.02]);
-xlabel('v (cm/s)'); title('Label-Control')
-legend(['B1sc = ' num2str(b1scale(2))],['B1sc = ' num2str(b1scale(3))], ...
-       ['B1sc = ' num2str(b1scale(4))],['B1sc = ' num2str(b1scale(5))], ...
-       ['B1sc = ' num2str(b1scale(6))],['B1sc = ' num2str(b1scale(7))]);
-subplot(1,3,3)
-plot(v,squeeze(mz2(:,idx2,b1scale==1)) - mz_0v_df); axis square; 
-xlim([-2 2]); ylim([-0.02 0.02]);
-xlabel('v (cm/s)'); title('Label-Control')
-legend(['\Deltaf = ' num2str(df(10))],['\Deltaf = ' num2str(df(11))], ...
-       ['\Deltaf = ' num2str(df(12))],['\Deltaf = ' num2str(df(13))], ...
-       ['\Deltaf = ' num2str(df(14))],['\Deltaf = ' num2str(df(15))]);
-
-
-   
+title('B1scale=1');
 
